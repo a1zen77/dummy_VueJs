@@ -26,8 +26,8 @@ with app.app_context():
     app.security.datastore.find_or_create_role(name='user', description='Regular User')
     db.session.commit()
 
-    if not app.security.datastore.find_user(email = 'user@admin.com'):
-        app.security.datastore.create_user(email = 'user@admin.com', username = 'admin01', password = hash_password('12345'), roles = ['admin'])
+    if not app.security.datastore.find_user(email = 'user0@admin.com'):
+        app.security.datastore.create_user(email = 'user0@admin.com', username = 'admin01', password = hash_password('12345'), roles = ['admin'])
     if not app.security.datastore.find_user(email = 'user1@user.com'):
         app.security.datastore.create_user(email = 'user1@user.com', username = 'user01', password = hash_password('12345'), roles = ['user'])
     db.session.commit()
