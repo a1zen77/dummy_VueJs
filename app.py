@@ -32,6 +32,8 @@ with app.app_context():
         app.security.datastore.create_user(email = 'user1@user.com', username = 'user01', password = hash_password('12345'), roles = ['user'])
     db.session.commit()
 
+from application.routes import *
+
 if __name__ == "__main__":
     app.run()
 
