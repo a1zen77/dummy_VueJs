@@ -1,7 +1,7 @@
 from .database import db
 from .models import User, Role
-from flask import current_app as app, jsonify
-from flask_security import auth_required, roles_required, current_user, roles_accepted
+from flask import current_app as app, jsonify, request
+from flask_security import auth_required, roles_required, current_user, roles_accepted, hash_password
 
 @app.route('/', methods=['GET'])
 def home():
@@ -26,3 +26,17 @@ def user_home(user_id):
         "email": user.email,
         "password": user.password,
     })
+
+@app.route('/api/register', methods=['POST'])
+def create_user():
+    credentials = request.get_json()
+    if not app.security.datastore.find_user(email = credentials['email']):
+        app.security.datastore.create_user(email = credentials['email'], username = credentials['username'], password = hash_password(credentials['password']), roles = ['user'])
+        db.session.commit() 
+        return jsonify({
+            "message": "User created successfully"
+        }), 201
+    
+    return jsonify({
+        "message": "User already exists"
+    }), 400
