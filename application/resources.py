@@ -1,6 +1,6 @@
 from flask_restful import Api, Resource, reqparse
 from .models import *
-from flask_security import auth_required, roles_accepted, current_user
+from flask_security import auth_required, roles_accepted, roles_required, current_user
 
 api = Api()
 
@@ -9,6 +9,14 @@ def roles_list(roles):
     for role in roles:
         role_list.append(role.name)
     return role_list
+
+parser = reqparse.RequestParser()
+parser.add_argument('name')
+parser.add_argument('type')
+parser.add_argument('date')
+parser.add_argument('source')
+parser.add_argument('destination')
+parser.add_argument('description')
 
 class TransApi(Resource):
     @auth_required('token')
@@ -32,7 +40,7 @@ class TransApi(Resource):
             this_trans['internal_status'] = transaction.internal_status
             this_trans['delivery_status'] = transaction.delivary_status
             this_trans['description'] = transaction.description
-            this_trans['user'] = transaction.user_id
+            this_trans['user'] = transaction.bearer.username
             trans_jsons.append(this_trans)
         
         if trans_jsons:
@@ -41,5 +49,26 @@ class TransApi(Resource):
         return {
             "message" : "No transactions found"
         }, 404
+    @auth_required('token')
+    @roles_required('user')
+    def post(self):
+        args = parser.parse_args()
+        try:
+            transaction = Transaction(name = args['name'], 
+                                  type = args['type'], 
+                                  date = args['date'], 
+                                  source = args['source'], 
+                                  destination = args['destination'], 
+                                  description = args['description'],
+                                  user_id = current_user.id)
+            db.session.add(transaction)
+            db.session.commit()
+            return {
+                "message" : "Transaction created successfully"
+            }, 201
+        except:
+            return {
+                "message" : "One or more fields are missing"
+            }, 400
     
-api.add_resource(TransApi, '/api/get')
+api.add_resource(TransApi, '/api/get', '/api/create')
