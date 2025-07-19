@@ -76,6 +76,10 @@ class TransApi(Resource):
     def put(self, trans_id):
         args = parser.parse_args()
         trans = Transaction.query.get(trans_id)
+        if(args['name'] == None):
+            return {
+                "message" : "Name is required"
+            }, 400
         trans.name = args['name']
         trans.type = args['type']
         trans.date = args['date']
@@ -95,11 +99,14 @@ class TransApi(Resource):
             db.session.delete(trans)
             db.session.commit()
             return {
-                "message": "Transaction deleted successfully"
+                "message": "Transaction deleted successfully!"
             }, 200
         else:
             return {
                 "message": "Transaction not found"
             }, 404
         
-api.add_resource(TransApi, '/api/get', '/api/create', '/api/update/<int:trans_id>', '/api/delete/<int:trans_id>')
+api.add_resource(TransApi, '/api/get',
+                           '/api/create',
+                           '/api/update/<int:trans_id>',
+                           '/api/delete/<int:trans_id>')

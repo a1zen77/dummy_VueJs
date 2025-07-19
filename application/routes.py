@@ -1,5 +1,5 @@
 from .database import db
-from .models import User, Role
+from .models import User, Role, Transaction
 from flask import current_app as app, jsonify, request
 from flask_security import auth_required, roles_required, current_user, roles_accepted, hash_password
 
@@ -40,3 +40,14 @@ def create_user():
     return jsonify({
         "message": "User already exists"
     }), 400
+
+@app.route('/api/pay/<int:trans_id>')
+@auth_required('token')
+@roles_required('user')
+def payment(trans_id):
+    trans = Transaction.query.get(trans_id)
+    trans.internal_status = 'paid'
+    db.session.commit()
+    return jsonify({
+        "message": "Payment successful!",
+    })
