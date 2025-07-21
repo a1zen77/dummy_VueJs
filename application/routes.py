@@ -51,3 +51,15 @@ def payment(trans_id):
     return jsonify({
         "message": "Payment successful!",
     })
+
+@app.route('/api/delivery/<int:trans_id>', method=['POST'])
+@auth_required('token')
+@roles_required('admin')
+def delivery(trans_id):
+    body = request.get_json()
+    trans = Transaction.query.get(trans_id)
+    trans.delivery_status = body['status']
+    db.session.commit()
+    return jsonify({
+        "message": "Delivery status updated successfully",
+    }), 200
