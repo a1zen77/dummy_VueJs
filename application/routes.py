@@ -1,7 +1,7 @@
 from .database import db
 from .models import User, Role, Transaction
 from flask import current_app as app, jsonify, request
-from flask_security import auth_required, roles_required, current_user, roles_accepted, hash_password
+from flask_security import auth_required, roles_required, current_user, roles_accepted, login_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 @app.route('/', methods=['GET'])
@@ -42,11 +42,15 @@ def user_login():
     user = app.security.datastore.find_user(email=email)
     if user:
         if check_password_hash(user.password, password):
-            return jsonify({
-                "id": user.id,
-                "username": user.username,
-                "auth-token": user.get_auth_token(),
-            }), 200
+            if current_user is None:
+                login_user(user)
+                print(current_user)
+                return jsonify({
+                    "id": user.id,
+                    "username": user.username,
+                    "auth-token": user.get_auth_token(),
+                }), 200
+            
         else:
             return jsonify({
                 "message": "Invalid password!"
@@ -60,7 +64,7 @@ def user_login():
 def create_user():
     credentials = request.get_json()
     if not app.security.datastore.find_user(email = credentials['email']):
-        app.security.datastore.create_user(email = credentials['email'], username = credentials['username'], password = hash_password(credentials['password']), roles = ['user'])
+        app.security.datastore.create_user(email = credentials['email'], username = credentials['username'], password = generate_password_hash(credentials['password']), roles = ['user'])
         db.session.commit() 
         return jsonify({
             "message": "User created successfully"
