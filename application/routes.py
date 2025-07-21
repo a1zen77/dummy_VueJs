@@ -2,6 +2,7 @@ from .database import db
 from .models import User, Role, Transaction
 from flask import current_app as app, jsonify, request
 from flask_security import auth_required, roles_required, current_user, roles_accepted, hash_password
+from werkzeug.security import check_password_hash, generate_password_hash
 
 @app.route('/', methods=['GET'])
 def home():
@@ -26,6 +27,34 @@ def user_home(user_id):
         "email": user.email,
         "password": user.password,
     })
+
+@app.route('/api/login', methods=['POST'])
+def user_login():
+    body = request.get_json()
+    email = body.get('email')
+    password = body.get('password')
+
+    if not email:
+        return jsonify({
+            "message": "Email is required!"
+        }), 400
+    
+    user = app.security.datastore.find_user(email=email)
+    if user:
+        if check_password_hash(user.password, password):
+            return jsonify({
+                "id": user.id,
+                "username": user.username,
+                "auth-token": user.get_auth_token(),
+            }), 200
+        else:
+            return jsonify({
+                "message": "Invalid password!"
+            }), 400
+    else:
+        return jsonify({
+            "message": "User not found!"
+        }), 404
 
 @app.route('/api/register', methods=['POST'])
 def create_user():
