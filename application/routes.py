@@ -63,3 +63,17 @@ def delivery(trans_id):
     return jsonify({
         "message": "Delivery status updated successfully",
     }), 200
+
+@app.route('/api/review/<int:trans_id>', methods=['POST'])
+@auth_required('token')
+@roles_required('admin')
+def review(trans_id):
+    body = request.get_json()
+    trans = Transaction.query.get(trans_id)
+    trans.delivery = body['delivery']
+    trans.amount = body['amount']
+    trans.internal_status = 'pending'
+    db.session.commit()
+    return jsonify({
+        "message": "Transaction reviewed successfully",
+    }), 200
