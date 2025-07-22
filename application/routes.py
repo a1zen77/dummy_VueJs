@@ -1,12 +1,12 @@
 from .database import db
 from .models import User, Role, Transaction
-from flask import current_app as app, jsonify, request
+from flask import current_app as app, jsonify, request, render_template
 from flask_security import auth_required, roles_required, current_user, roles_accepted, login_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 @app.route('/', methods=['GET'])
 def home():
-    return "<h1>Home Page</h1>"
+    return render_template('index.html')
 
 @app.route('/api/admin')
 @auth_required('token')
@@ -42,10 +42,9 @@ def user_login():
     user = app.security.datastore.find_user(email=email)
     if user:
         if check_password_hash(user.password, password):
-            if current_user is None:
-                login_user(user)
-                print(current_user)
-                return jsonify({
+            login_user(user)
+            print(current_user)
+            return jsonify({
                     "id": user.id,
                     "username": user.username,
                     "auth-token": user.get_auth_token(),
