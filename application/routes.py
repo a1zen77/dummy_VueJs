@@ -84,7 +84,7 @@ def payment(trans_id):
         "message": "Payment successful!",
     })
 
-@app.route('/api/delivery/<int:trans_id>', method=['POST'])
+@app.route('/api/delivery/<int:trans_id>', methods=['POST'])
 @auth_required('token')
 @roles_required('admin')
 def delivery(trans_id):
