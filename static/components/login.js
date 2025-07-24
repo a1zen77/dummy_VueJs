@@ -7,11 +7,11 @@ export default {
                         <h2 class="text-center">Login Form</h2>
                         <div>
                             <label for="email">Enter your email:</label>
-                            <input type="text" id="email" v-model="email">
+                            <input type="text" id="email" v-model="formData.email">
                         </div>
                         <div>
                             <label for="email">Enter your password:</label>
-                            <input type="password" id="pass" v-model="password">
+                            <input type="password" id="pass" v-model="formData.password">
                         </div>
                         <div>
                             <button @click="loginUser" class="btn btn-primary">Login</button>

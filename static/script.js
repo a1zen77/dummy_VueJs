@@ -3,11 +3,13 @@ import login from './components/login.js'
 import register from './components/register.js'
 import navbar from './components/navbar.js'
 import footer from './components/footer.js'
+import dashboard from './components/dashboard.js'
 
 const routes = [
     {path: '/', component: home},
     {path: '/login', component: login},
     {path: '/register', component: register},
+    {path: '/dashboard', component: dashboard},
 ]
 
 const router = new VueRouter({
